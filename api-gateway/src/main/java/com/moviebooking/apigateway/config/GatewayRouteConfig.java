@@ -51,7 +51,7 @@ public class GatewayRouteConfig {
                  * their own brute-force protection within the auth-service
                  * (account lockout after N failed attempts).
                  */
-                .route("auth-service", r -> r
+                .route("identity-service", r -> r
                         .path("/api/v1/auth/**")
                         .filters(f -> f
                                 .addRequestHeader("X-Gateway-Source", "movie-booking-gateway")
@@ -59,6 +59,24 @@ public class GatewayRouteConfig {
                                         .setName("identity-service-cb")
                                         .setFallbackUri("forward:/fallback/auth")))
                         .uri("lb://identity-service"))
+
+                .route("movie-service", r -> r
+                        .path("/api/v1/movies/**")
+                        .filters(f -> f
+                                .addRequestHeader("X-Gateway-Source", "movie-booking-gateway")
+                                .circuitBreaker(config -> config
+                                        .setName("movie-service-cb")
+                                        .setFallbackUri("forward:/fallback/movie")))
+                        .uri("lb://movie-service"))
+
+                .route("theatre-service", r -> r
+                        .path("/api/v1/theatres/**")
+                        .filters(f -> f
+                                .addRequestHeader("X-Gateway-Source", "movie-booking-gateway")
+                                .circuitBreaker(config -> config
+                                        .setName("theatre-service-cb")
+                                        .setFallbackUri("forward:/fallback/theatre")))
+                        .uri("lb://theatre-service"))
                 .build();
     }
 
