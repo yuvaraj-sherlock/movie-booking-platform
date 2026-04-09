@@ -5,7 +5,10 @@ import com.moviebooking.identity.entity.Role;
 import com.moviebooking.identity.entity.User;
 import com.moviebooking.identity.repository.RoleRepository;
 import com.moviebooking.identity.repository.UserRepository;
+import com.moviebooking.identity.security.CustomUserDetailsService;
 import com.moviebooking.identity.security.JwtUtil;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -18,15 +21,18 @@ public class AuthService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final CustomUserDetailsService userDetailsService;
 
     public AuthService(UserRepository userRepository,
                        RoleRepository roleRepository,
                        PasswordEncoder passwordEncoder,
-                       JwtUtil jwtUtil) {
+                       JwtUtil jwtUtil,
+                      CustomUserDetailsService userDetailsService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
+        this.userDetailsService = userDetailsService;
     }
 
     public void register(RegisterRequest request) {
@@ -43,15 +49,17 @@ public class AuthService {
         userRepository.save(user);
     }
 
-    public String login(LoginRequest request) {
+  public String login(LoginRequest request) {
 
-        User user = userRepository.findByUsername(request.username)
-                .orElseThrow(() -> new RuntimeException("Invalid credentials"));
+    User user = userRepository.findByUsername(request.username)
+            .orElseThrow(() -> new RuntimeException("Invalid credentials"));
 
-        if (!passwordEncoder.matches(request.password, user.getPassword())) {
-            throw new RuntimeException("Invalid credentials");
-        }
-
-        return jwtUtil.generateToken(user.getUsername());
+    if (!passwordEncoder.matches(request.password, user.getPassword())) {
+      throw new RuntimeException("Invalid credentials");
     }
+
+    UserDetails userDetails = userDetailsService.loadUserByUsername(request.username);
+
+    return jwtUtil.generateToken(userDetails);
+  }
 }
