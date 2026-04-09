@@ -11,7 +11,7 @@
     <name>movie-booking-platform</name>
 
     <modules>
-
+        <module>identity-service</module>
     </modules>
 
     <properties>
