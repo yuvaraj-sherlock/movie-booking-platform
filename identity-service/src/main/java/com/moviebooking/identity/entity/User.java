@@ -1,10 +1,17 @@
 package com.moviebooking.identity.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
+
 import java.util.Set;
 
 @Entity
 @Table(name = "users")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class User {
 
     @Id
@@ -29,6 +36,4 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<Role> roles;
-
-    // getters and setters
 }
