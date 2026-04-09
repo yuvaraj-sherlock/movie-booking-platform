@@ -17,4 +17,65 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <dependencies>
+        <!--
+          Spring Cloud Gateway (WebFlux-based):
+          WHY: Reactive gateway handles thousands of concurrent connections
+               with minimal threads. Critical for airline systems with high
+               real-time request volumes (check-in, crew queries, etc.)
+        -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-gateway</artifactId>
+        </dependency>
+
+        <!--
+          Spring Security Reactive:
+          WHY: JWT validation at the gateway edge prevents unauthorized
+               requests from ever reaching downstream microservices.
+               This is the "zero-trust" perimeter security pattern.
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <!--
+          Spring Data Redis Reactive:
+          WHY: Rate limiting state must be shared across gateway replicas
+               in Kubernetes. Redis provides a distributed, high-speed
+               store for rate limit counters (token bucket algorithm).
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis-reactive</artifactId>
+        </dependency>
+
+        <!-- JWT Processing -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!--
+          Spring Boot Actuator:
+          WHY: Kubernetes liveness/readiness probes rely on /actuator/health
+               endpoints. Without this, K8s cannot determine pod health.
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+    </dependencies>
+
 </project>
